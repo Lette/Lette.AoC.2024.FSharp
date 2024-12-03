@@ -2,8 +2,6 @@
 
 module Program =
 
-    open Settings
-
     let parseArgs args =
         let args' = args |> List.ofArray
 
@@ -11,41 +9,41 @@ module Program =
             match args with
             | [] -> acc
 
-            | "-l"                        :: xs -> loop xs { acc with Days = Latest }
-            | "--latest"                  :: xs -> loop xs { acc with Days = Latest }
+            | "-l"                        :: xs -> loop xs (Settings.withLatest acc)
+            | "--latest"                  :: xs -> loop xs (Settings.withLatest acc)
 
-            | "-a"                        :: xs -> loop xs { acc with Days = All; Parts = Both }
-            | "--all"                     :: xs -> loop xs { acc with Days = All; Parts = Both }
+            | "-a"                        :: xs -> loop xs (Settings.withAll acc)
+            | "--all"                     :: xs -> loop xs (Settings.withAll acc)
 
             | "-d"                        :: [] -> failwith "-d must be followed by a valid day"
-            | "-d"       :: IsInteger day :: xs -> loop xs { acc with Days = setOnly day acc.Days }
-            | "-d"       :: bad           :: _  -> failwith (sprintf "'%s' is an unknown day" bad)
+            | "-d"       :: IsInteger day :: xs -> loop xs (Settings.withDay day acc)
+            | "-d"       :: bad           :: _  -> failwith $"'%s{bad}' is an unknown day"
             | "--day"                     :: [] -> failwith "--day must be followed by a valid day"
-            | "--day"    :: IsInteger day :: xs -> loop xs { acc with Days = setOnly day acc.Days }
-            | "--day"    :: bad           :: _  -> failwith (sprintf "'%s' is an unknown day" bad)
+            | "--day"    :: IsInteger day :: xs -> loop xs (Settings.withDay day acc)
+            | "--day"    :: bad           :: _  -> failwith $"'%s{bad}' is an unknown day"
 
             | "-e"                        :: [] -> failwith "-e must be followed by a valid day"
-            | "-e"       :: IsInteger day :: xs -> loop xs { acc with Days = setExcept day acc.Days}
-            | "-e"       :: bad           :: _  -> failwith (sprintf "'%s' is an unknown day" bad)
+            | "-e"       :: IsInteger day :: xs -> loop xs (Settings.withoutDay day acc)
+            | "-e"       :: bad           :: _  -> failwith $"'%s{bad}' is an unknown day"
             | "--except"                  :: [] -> failwith "--except must be followed by a valid day"
-            | "--except" :: IsInteger day :: xs -> loop xs { acc with Days = setExcept day acc.Days}
-            | "--except" :: bad           :: _  -> failwith (sprintf "'%s' is an unknown day" bad)
+            | "--except" :: IsInteger day :: xs -> loop xs (Settings.withoutDay day acc)
+            | "--except" :: bad           :: _  -> failwith $"'%s{bad}' is an unknown day"
 
             | "-p"                        :: [] -> failwith "-p must be followed by a valid part (1 or 2)"
-            | "-p"       :: "1"           :: xs -> loop xs { acc with Parts = First }
-            | "-p"       :: "2"           :: xs -> loop xs { acc with Parts = Second }
-            | "-p"       :: bad           :: _  -> failwith (sprintf "'%s' is an unknown part" bad)
+            | "-p"       :: "1"           :: xs -> loop xs (Settings.withPart First acc)
+            | "-p"       :: "2"           :: xs -> loop xs (Settings.withPart Second acc)
+            | "-p"       :: bad           :: _  -> failwith $"'%s{bad}' is an unknown part"
             | "--part"                    :: [] -> failwith "--part must be followed by a valid part (1 or 2)"
-            | "--part"   :: "1"           :: xs -> loop xs { acc with Parts = First }
-            | "--part"   :: "2"           :: xs -> loop xs { acc with Parts = Second }
-            | "--part"   :: bad           :: _  -> failwith (sprintf "'%s' is an unknown part" bad)
+            | "--part"   :: "1"           :: xs -> loop xs (Settings.withPart First acc)
+            | "--part"   :: "2"           :: xs -> loop xs (Settings.withPart Second acc)
+            | "--part"   :: bad           :: _  -> failwith $"'%s{bad}' is an unknown part"
 
-            | "-t"                        :: xs -> loop xs { acc with ShowParserTime = true }
-            | "--show-parser-time"        :: xs -> loop xs { acc with ShowParserTime = true }
+            | "-t"                        :: xs -> loop xs (Settings.withParserTime acc)
+            | "--show-parser-time"        :: xs -> loop xs (Settings.withParserTime acc)
 
-            | s                           :: _  -> failwith (sprintf "'%s' is an unknown argument" s)
+            | s                           :: _  -> failwith $"'%s{s}' is an unknown argument"
 
-        loop args' defaultSettings
+        loop args' Settings.defaults
 
     [<EntryPoint>]
     let main args =

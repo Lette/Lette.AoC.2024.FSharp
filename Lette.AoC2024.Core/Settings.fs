@@ -18,19 +18,36 @@ type Settings =
         ShowParserTime: bool
     }
 
+[<RequireQualifiedAccess>]
 module Settings =
 
-    let setOnly day =
-        function
-        | Only ds -> Only (day :: ds)
-        | _       -> Only (day :: [])
+    let withDay day settings =
+        let days =
+            match settings.Days with
+            | Only ds -> Only (day :: ds)
+            | _       -> Only (day :: [])
+        { settings with Days = days }
 
-    let setExcept day =
-        function
-        | Except ds -> Except (day :: ds)
-        | _         -> Except (day :: [])
+    let withoutDay day settings =
+        let days =
+            match settings.Days with
+            | Except ds -> Except (day :: ds)
+            | _         -> Except (day :: [])
+        { settings with Days = days }
 
-    let defaultSettings =
+    let withLatest settings =
+        { settings with Days = Latest }
+
+    let withAll settings =
+        { settings with Days = All; Parts = Both }
+
+    let withPart part settings =
+        { settings with Parts = part }
+
+    let withParserTime settings =
+        { settings with ShowParserTime = true }
+
+    let defaults =
         {
             Days = All
             Parts = Both
