@@ -14,14 +14,13 @@ module Day01 =
         Parser.run rowsP input
         |> List.unzip
 
-    let distance (a, b) = abs (a - b)
+    let distance a b = abs (a - b)
 
     let part1 input =
 
         input
         |> Tuple.map1 List.sort
-        ||> List.zip
-        |> List.map distance
+        ||> List.map2 distance
         |> List.sum
 
     let appearancesMap =
