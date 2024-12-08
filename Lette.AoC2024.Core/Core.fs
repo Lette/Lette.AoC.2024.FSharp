@@ -1,9 +1,12 @@
 ﻿namespace Lette.AoC2024
 
+open System.Collections.Generic
+
 [<AutoOpen>]
 module Core =
 
     let flip f a b = f b a
+    let dup f x = f x x
 
     let cons x xs = x :: xs
     let cons' (x, xs) = cons x xs
@@ -61,6 +64,25 @@ module Core =
 
     let manhattanDistance (x1, y1) (x2, y2) =
         abs (x1 - x2) + abs (y1 - y2)
+
+    // create all combinations of length n, with repetition, from a set of items
+    let rec allCombinations n items =
+        match n with
+        | 0 -> seq { yield [] }
+        | _ -> items |> Seq.collect (fun item -> allCombinations (n - 1) items |> Seq.map (fun items -> item :: items))
+
+    let memoize f =
+        let cache = Dictionary<_, _>()
+        fun x ->
+            match cache.TryGetValue(x) with
+            | true, res -> res
+            | _ ->
+                let result = f x
+                cache.Add(x, result)
+                result
+
+    let numberOfDigits = float >> log10 >> int >> (+) 1
+    let numberOfDigitsL: (int64 -> int) = float >> log10 >> int >> (+) 1
 
 [<RequireQualifiedAccess>]
 module List =
